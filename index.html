@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalPal - Professional Fitness Tracking</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        }
+
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .logo-container {
+            width: 80px;
+            height: 80px;
+        }
+
+        .logo-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: invert(1);
+        }
+
+        .loading-ring {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #333;
+            border-top: 2px solid #fff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .beta-text {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .profile-setup {
+            max-width: 600px;
+            margin: 40px auto;
+            padding: 20px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease-out;
+        }
+
+        .profile-setup.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .welcome-message {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .welcome-message h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            color: #1a1a1a;
+        }
+
+        .welcome-message p {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #4a4a4a;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .form-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .image-upload {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto 30px;
+            background: #f0f0f0;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: 3px solid #1a1a1a;
+            transition: all 0.3s ease;
+        }
+
+        .image-upload:hover {
+            border-color: #333;
+        }
+
+        .image-upload img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .image-upload p {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            border-color: #1a1a1a;
+            outline: none;
+        }
+
+        .goals {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .goal-option {
+            padding: 16px;
+            border: 2px solid #1a1a1a;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .goal-option:hover {
+            background: #f8f9fa;
+        }
+
+        .goal-option.selected {
+            background: #1a1a1a;
+            color: white;
+        }
+
+        .get-started {
+            background: #1a1a1a;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .get-started:hover {
+            background: #333;
+        }
+
+        @media (max-width: 428px) {
+            .profile-setup {
+                margin: 20px auto;
+                padding: 15px;
+            }
+
+            .welcome-message {
+                padding: 20px;
+                margin-bottom: 30px;
+            }
+
+            .welcome-message h1 {
+                font-size: 24px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            .goals {
+                gap: 8px;
+            }
+
+            .goal-option {
+                padding: 12px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-screen">
+        <div class="loading-content">
+            <div class="logo-container">
+                <img src="LoadingScreenwhite.png" alt="CalPal">
+            </div>
+            <div class="loading-ring"></div>
+            <div class="beta-text">CalPal Beta</div>
+        </div>
+    </div>
+
+    <div class="profile-setup">
+        <div class="welcome-message">
+            <h1>Welcome to Your Fitness Journey</h1>
+            <p>You've taken the first step towards achieving your fitness goals. At CalPal, we combine precision nutrition with your training goals to create a personalized plan that delivers results. Let's build your profile and start transforming together.</p>
+        </div>
+
+        <div class="form-container">
+            <form class="profile-form" id="profileForm">
+                <div class="image-upload" id="imageUpload">
+                    <p>Add Profile Photo</p>
+                    <input type="file" hidden id="photoInput" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label for="name">Name</label>
+                    <input type="text" id="name" required placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="height">Height (cm)</label>
+                    <input type="number" id="height" required placeholder="Enter your height">
+                </div>
+
+                <div class="form-group">
+                    <label for="weight">Weight (kg)</label>
+                    <input type="number" id="weight" required placeholder="Enter your weight">
+                </div>
+
+                <div class="form-group">
+                    <label for="waist">Waist Length (cm) - Optional</label>
+                    <input type="number" id="waist" placeholder="Enter your waist length">
+                </div>
+
+                <div class="form-group">
+                    <label for="neck">Neck Length (cm) - Optional</label>
+                    <input type="number" id="neck" placeholder="Enter your neck length">
+                </div>
+
+                <div class="form-group">
+                    <label>Select Your Goal</label>
+                    <div class="goals">
+                        <div class="goal-option" data-goal="bulk">Bulk</div>
+                        <div class="goal-option" data-goal="lean-bulk">Lean Bulk</div>
+                        <div class="goal-option" data-goal="cut">Cut</div>
+                    </div>
+                </div>
+
+                <button type="submit" class="get-started">Get Started</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Loading screen handler
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-screen').classList.add('fade-out');
+                document.querySelector('.profile-setup').classList.add('visible');
+            }, 2000);
+        });
+
+        // Image upload handler
+        const imageUpload = document.getElementById('imageUpload');
+        const photoInput = document.getElementById('photoInput');
+
+        imageUpload.addEventListener('click', () => {
+            photoInput.click();
+        });
+
+        photoInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    imageUpload.innerHTML = '';
+                    imageUpload.appendChild(img);
+                    localStorage.setItem('userPhoto', e.target.result);
+                };
+                reader.readAsDataURL(e.target.files[0]);
+            }
+        });
+
+        // Goal selection handler
+        const goalOptions = document.querySelectorAll('.goal-option');
+        let selectedGoal = null;
+
+        goalOptions.forEach(option => {
+            option.addEventListener('click', () => {
+                goalOptions.forEach(opt => opt.classList.remove('selected'));
+                option.classList.add('selected');
+                selectedGoal = option.dataset.goal;
+            });
+        });
+
+        // Form submission handler with local storage
+        document.getElementById('profileForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (!selectedGoal) {
+                alert('Please select a goal');
+                return;
+            }
+
+            const userData = {
+                name: document.getElementById('name').value,
+                height: document.getElementById('height').value,
+                weight: document.getElementById('weight').value,
+                waist: document.getElementById('waist').value,
+                neck: document.getElementById('neck').value,
+                goal: selectedGoal
+            };
+
+            localStorage.setItem('userData', JSON.stringify(userData));
+            window.location.href = `/${selectedGoal}.html`;
+        });
+
+        // Load saved data if exists
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedData = localStorage.getItem('userData');
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                document.getElementById('name').value = data.name || '';
+                document.getElementById('height').value = data.height || '';
+                document.getElementById('weight').value = data.weight || '';
+                document.getElementById('waist').value = data.waist || '';
+                document.getElementById('neck').value = data.neck || '';
+                
+                if (data.goal) {
+                    const goalOption = document.querySelector(`[data-goal="${data.goal}"]`);
+                    if (goalOption) {
+                        goalOption.classList.add('selected');
+                        selectedGoal = data.goal;
+                    }
+                }
+            }
+
+            const savedPhoto = localStorage.getItem('userPhoto');
+            if (savedPhoto) {
+                const img = document.createElement('img');
+                img.src = savedPhoto;
+                imageUpload.innerHTML = '';
+                imageUpload.appendChild(img);
+            }
+        });
+    </script>
+</body>
+</html>
